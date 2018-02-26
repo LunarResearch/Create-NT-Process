@@ -28,7 +28,7 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[]) {
 	NtQueryInformationProcess(hProcess, ProcessBasicInformation, &ProcessBasicInfo, sizeof(PROCESS_BASIC_INFORMATION), 0);
 	dwProcessId = ProcessBasicInfo.UniqueProcessId;
 
-	wprintf(L"Porcess name: %s\nProcess handle: %x\nProcess ID: %d\nEntry Point: 0x%016llX\nMachine: %x\nFile size: %d\n",
+	wprintf(L"Porcess name: %s\nProcess handle: %x\nProcess ID: %d\nEntry point: 0x%016llX\nMachine: %x\nFile size: %d\n",
 		FindData.cFileName, hProcess, dwProcessId, SectionImageInfo.TransferAddress, SectionImageInfo.Machine, SectionImageInfo.ImageFileSize);
 
 	NtTerminateProcess(hProcess, 0);
