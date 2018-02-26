@@ -7,10 +7,10 @@
 
 #include <Windows.h>
 
-#include <winternl.h>
+#include <winternl.h> // Windows 10 SDK
 #include <Psapi.h>
 
-#pragma comment (lib, "ntdll.lib")
+#pragma comment (lib, "ntdll.lib") // Windows 10 SDK
 
 #define InitializeObjectAttributes( p, n, a, r, s ) { \
 		(p)->Length = sizeof( OBJECT_ATTRIBUTES );          \
