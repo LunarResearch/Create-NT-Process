@@ -10,7 +10,7 @@ PROCESS_BASIC_INFORMATION ProcessBasicInfo;
 
 HANDLE hFile, hSection, hProcess;
 WCHAR Path[MAX_PATH];
-DWORD ProcessId;
+DWORD dwProcessId;
 
 int wmain(int argc, wchar_t *argv[], wchar_t *envp[]) {
 	RtlInitUnicodeString(&U_Str, L"\\??\\F:\\MinPack\\Assassin's Creed Origins\\ACOrigins.exe"); // ?? or DosDevices
@@ -26,10 +26,10 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[]) {
 	K32GetModuleFileNameExW(hProcess, 0, Path, MAX_PATH);
 	FindFirstFileW(Path, &FindData);
 	NtQueryInformationProcess(hProcess, ProcessBasicInformation, &ProcessBasicInfo, sizeof(PROCESS_BASIC_INFORMATION), 0);
-	ProcessId = ProcessBasicInfo.UniqueProcessId;
+	dwProcessId = ProcessBasicInfo.UniqueProcessId;
 
 	wprintf(L"Porcess name: %s\nProcess handle: %x\nProcess ID: %d\nEntry Point: 0x%016llX\nMachine: %x\nFile size: %d\n",
-		FindData.cFileName, hProcess, ProcessId, SectionImageInfo.TransferAddress, SectionImageInfo.Machine, SectionImageInfo.ImageFileSize);
+		FindData.cFileName, hProcess, dwProcessId, SectionImageInfo.TransferAddress, SectionImageInfo.Machine, SectionImageInfo.ImageFileSize);
 
 	NtTerminateProcess(hProcess, 0);
 
