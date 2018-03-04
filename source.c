@@ -26,10 +26,10 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[]) {
 	K32GetModuleFileNameExW(hProcess, 0, Path, MAX_PATH);
 	FindFirstFileW(Path, &FindData);
 	NtQueryInformationProcess(hProcess, ProcessBasicInformation, &ProcessBasicInfo, sizeof(PROCESS_BASIC_INFORMATION), 0);
-	dwProcessId = ProcessBasicInfo.UniqueProcessId;
+	dwProcessId = (DWORD)ProcessBasicInfo.UniqueProcessId;
 
 	wprintf(L"Porcess name: %s\nProcess handle: %x\nProcess ID: %d\nEntry point: 0x%016llX\nMachine: %x\nFile size: %d\n",
-		FindData.cFileName, hProcess, dwProcessId, SectionImageInfo.TransferAddress, SectionImageInfo.Machine, SectionImageInfo.ImageFileSize);
+		FindData.cFileName, (UINT)hProcess, dwProcessId, (UINT64)SectionImageInfo.TransferAddress, SectionImageInfo.Machine, SectionImageInfo.ImageFileSize);
 
 	NtTerminateProcess(hProcess, 0);
 
