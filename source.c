@@ -12,7 +12,7 @@ HANDLE hFile, hSection, hProcess;
 WCHAR Path[MAX_PATH];
 DWORD dwProcessId;
 
-int wmain(int argc, wchar_t *argv[], wchar_t *envp[]) {
+void wmain(void) {
 	RtlInitUnicodeString(&U_Str, L"\\??\\F:\\MinPack\\Assassin's Creed Origins\\ACOrigins.exe"); // ?? or DosDevices
 	InitializeObjectAttributes(&ObjAttr, &U_Str, OBJ_CASE_INSENSITIVE, 0, NULL);
 
@@ -31,8 +31,6 @@ int wmain(int argc, wchar_t *argv[], wchar_t *envp[]) {
 	wprintf(L"Porcess name: %s\nProcess handle: %x\nProcess ID: %d\nEntry point: 0x%016llX\nMachine: %x\nFile size: %d\n",
 		FindData.cFileName, (UINT)hProcess, dwProcessId, (UINT64)SectionImageInfo.TransferAddress, SectionImageInfo.Machine, SectionImageInfo.ImageFileSize);
 
-	NtTerminateProcess(hProcess, 0);
-
 	getwchar();
-	return FALSE;
+	NtTerminateProcess(hProcess, 0);
 }
