@@ -7,12 +7,17 @@
 
 #include <Windows.h>
 
-#include <winternl.h> // Windows 10 SDK
+#include <winternl.h>
 #include <Psapi.h>
 
-#pragma comment (lib, "ntdll.lib") // Windows 10 SDK
+#pragma comment (lib, "ntdll.lib")
 
 #define NtCurrentProcess() ((HANDLE)(LONG_PTR)-1)
+#define NtCurrentThread() ((HANDLE)(LONG_PTR)-2)
+
+#define THREAD_CREATE_FLAGS_CREATE_SUSPENDED 0x00000001
+
+typedef CLIENT_ID *PCLIENT_ID;
 
 typedef enum _SECTION_INFORMATION_CLASS {
 	SectionBasicInformation,
@@ -63,5 +68,25 @@ typedef struct _SECTION_IMAGE_INFORMATION {
 	ULONG ImageFileSize;
 	ULONG CheckSum;
 } SECTION_IMAGE_INFORMATION, *PSECTION_IMAGE_INFORMATION;
+
+typedef enum _SECTION_INHERIT {
+	ViewShare = 1,
+	ViewUnmap = 2
+} SECTION_INHERIT;
+
+typedef struct _PS_ATTRIBUTE {
+	ULONG_PTR Attribute;
+	SIZE_T Size;
+	union {
+		ULONG_PTR Value;
+		PVOID ValuePtr;
+	};
+	PSIZE_T ReturnLength;
+} PS_ATTRIBUTE, *PPS_ATTRIBUTE;
+
+typedef struct _PS_ATTRIBUTE_LIST {
+	SIZE_T TotalLength;
+	PS_ATTRIBUTE Attributes[1];
+} PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
 
 #endif // _NTDEF_H_
