@@ -19,14 +19,15 @@ void wmain(void) {
 	RtlInitUnicodeString(&U_Str, L"\\??\\E:\\MinPack\\Assassin's Creed Origins\\uplay_r1_loader64.dll"); // ?? or DosDevices ACOrigins.exe uplay_r1_loader64.dll
 	InitializeObjectAttributes(&ObjAttr, &U_Str, OBJ_KERNEL_HANDLE, 0, NULL);
 
-	NtOpenFile(&hFile, FILE_OPEN, &ObjAttr, &FileStatus, FILE_SHARE_READ, FILE_SEQUENTIAL_ONLY);
-	NtCreateSection(&hSection, MAXIMUM_ALLOWED, NULL, 0, PAGE_READONLY, SEC_IMAGE, hFile);
+	NtOpenFile(&hFile, FILE_GENERIC_READ | FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE, &ObjAttr, &FileStatus,
+		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, FILE_SEQUENTIAL_ONLY);
+	NtCreateSection(&hSection, SECTION_ALL_ACCESS, NULL, 0, PAGE_EXECUTE_READWRITE, SEC_IMAGE, hFile);
 	NtClose(hFile);
 	NtQuerySection(hSection, SectionImageInformation, &SectionImageInfo, sizeof(SECTION_IMAGE_INFORMATION), 0);
-	NtCreateProcess(&hProcess, MAXIMUM_ALLOWED, NULL, NtCurrentProcess(), FALSE, hSection, 0, 0);
-	NtMapViewOfSection(hSection, hProcess, &BaseAddress, 0, 0, NULL, &ViewSize, ViewShare, 0, PAGE_READONLY);
+	NtCreateProcess(&hProcess, PROCESS_ALL_ACCESS, NULL, NtCurrentProcess(), FALSE, hSection, 0, 0);
+	NtMapViewOfSection(hSection, hProcess, &BaseAddress, 0, 0, NULL, &ViewSize, ViewShare, 0, PAGE_EXECUTE_READWRITE);
 	NtClose(hSection);
-	NtCreateThreadEx(&hThread, MAXIMUM_ALLOWED, NULL, hProcess, NULL, NULL, THREAD_CREATE_FLAGS_CREATE_SUSPENDED, 0, 0, 0, NULL);
+	NtCreateThreadEx(&hThread, THREAD_ALL_ACCESS, NULL, hProcess, NULL, NULL, THREAD_CREATE_FLAGS_CREATE_SUSPENDED, 0, 0, 0, NULL);
 
 	NtQueryInformationProcess(hProcess, ProcessBasicInformation, &ProcessBasicInfo, sizeof(PROCESS_BASIC_INFORMATION), 0);
 	NtQueryInformationThread(hThread, ThreadSystemThreadInformation, &ThreadSystemInfo, sizeof(SYSTEM_THREAD_INFORMATION), 0);
