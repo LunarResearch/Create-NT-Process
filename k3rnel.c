@@ -17,7 +17,7 @@ SIZE_T ViewSize;
 
 void wmain(void) {
 	RtlInitUnicodeString(&U_Str, L"\\??\\E:\\MinPack\\Assassin's Creed Origins\\uplay_r1_loader64.dll"); // ?? or DosDevices ACOrigins.exe uplay_r1_loader64.dll
-	InitializeObjectAttributes(&ObjAttr, &U_Str, OBJ_KERNEL_HANDLE, 0, NULL);
+	InitializeObjectAttributes(&ObjAttr, &U_Str, OBJ_CASE_INSENSITIVE, 0, NULL);
 
 	NtOpenFile(&hFile, FILE_GENERIC_READ | FILE_GENERIC_WRITE | FILE_GENERIC_EXECUTE, &ObjAttr, &FileStatus,
 		FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, FILE_SEQUENTIAL_ONLY);
