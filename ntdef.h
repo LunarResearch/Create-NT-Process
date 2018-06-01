@@ -6,7 +6,9 @@
 #define _NTDEF_H_
 
 #include <Windows.h>
+
 #include <winternl.h>
+#include <Psapi.h>
 
 #pragma comment (lib, "ntdll.lib")
 
