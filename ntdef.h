@@ -8,7 +8,6 @@
 #include <Windows.h>
 
 #include <winternl.h>
-#include <Psapi.h>
 
 #pragma comment (lib, "ntdll.lib")
 
