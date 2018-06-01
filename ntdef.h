@@ -15,18 +15,33 @@
 #define NtCurrentProcess() ((HANDLE)(LONG_PTR)-1)
 #define NtCurrentThread() ((HANDLE)(LONG_PTR)-2)
 
-#define THREAD_CREATE_FLAGS_CREATE_SUSPENDED 0x00000001
+#define CSR_CREATE_API_NUMBER (ServerId, ApiId) (CSR_API_NUMBER)(((ServerId) << 16) | (ApiId))
+#define CSRSRV_SERVERDLL_INDEX 0
 
 typedef CLIENT_ID *PCLIENT_ID;
 
 typedef enum _SECTION_INFORMATION_CLASS {
-	SectionBasicInformation,
-	SectionImageInformation,
-	SectionRelocationInformation,
-	SectionOriginalBaseInformation,
-	SectionInternalImageInformation,
-	MaxSectionInfoClass
+	SectionBasicInformation = 0,
+	SectionImageInformation = 1,
+	SectionRelocationInformation = 2,
+	SectionOriginalBaseInformation = 3,
+	SectionInternalImageInformation = 4,
+	MaxSectionInfoClass = 5
 } SECTION_INFORMATION_CLASS;
+
+typedef enum _MEMORY_INFORMATION_CLASS {
+	MemoryBasicInformation = 0,
+	MemoryWorkingSetInformation = 1,
+	MemoryMappedFilenameInformation = 2,
+	MemoryRegionInformation = 3,
+	MemoryWorkingSetExInformation = 4,
+	MemorySharedCommitInformation = 5,
+	MemoryImageInformation = 6,
+	MemoryRegionInformationEx = 7,
+	MemoryPrivilegedBasicInformation = 8,
+	MemoryEnclaveImageInformation = 9,
+	MemoryBasicInformationCapped = 10
+} MEMORY_INFORMATION_CLASS;
 
 typedef struct _SECTION_IMAGE_INFORMATION {
 	PVOID TransferAddress;
@@ -69,24 +84,80 @@ typedef struct _SECTION_IMAGE_INFORMATION {
 	ULONG CheckSum;
 } SECTION_IMAGE_INFORMATION, *PSECTION_IMAGE_INFORMATION;
 
-typedef enum _SECTION_INHERIT {
-	ViewShare = 1,
-	ViewUnmap = 2
-} SECTION_INHERIT;
+typedef struct _INITIAL_TEB {
+	struct {
+		PVOID OldStackBase;
+		PVOID OldStackLimit;
+	} OldInitialTeb;
+	PVOID StackBase;
+	PVOID StackLimit;
+	PVOID StackAllocationBase;
+} INITIAL_TEB, *PINITIAL_TEB;
 
-typedef struct _PS_ATTRIBUTE {
-	ULONG_PTR Attribute;
-	SIZE_T Size;
+typedef ULONG CSR_API_NUMBER;
+
+typedef struct _PORT_MESSAGE_HEADER {
+	USHORT DataSize;
+	USHORT MessageSize;
+	USHORT MessageType;
+	USHORT VirtualRangesOffset;
+	CLIENT_ID ClientId;
+	ULONG MessageId;
+	ULONG SectionSize;
+} PORT_MESSAGE_HEADER, *PPORT_MESSAGE_HEADER, PORT_MESSAGE, *PPORT_MESSAGE;
+
+typedef struct _CSR_API_CONNECTINFO {
+	HANDLE ObjectDirectory;
+	PVOID  SharedSectionBase;
+	PVOID  SharedStaticServerData;
+	PVOID  SharedSectionHeap;
+	ULONG  DebugFlags;
+	ULONG  SizeOfPebData;
+	ULONG  SizeOfTebData;
+	ULONG  NumberOfServerDllNames;
+	HANDLE ServerProcessId;
+} CSR_API_CONNECTINFO, *PCSR_API_CONNECTINFO;
+
+typedef struct _CSR_CAPTURE_BUFFER {
+	ULONG Size;
+	struct _CSR_CAPTURE_BUFFER *PreviousCaptureBuffer;
+	ULONG PointerCount;
+	PVOID BufferEnd;
+	ULONG_PTR PointerOffsetsArray[ANYSIZE_ARRAY];
+} CSR_CAPTURE_BUFFER, *PCSR_CAPTURE_BUFFER;
+
+typedef struct _CSR_CLIENT_CONNECT {
+	ULONG ServerId;
+	PVOID ConnectionInfo;
+	ULONG ConnectionInfoSize;
+} CSR_CLIENT_CONNECT, *PCSR_CLIENT_CONNECT;
+
+typedef struct _CSR_SET_PRIORITY_CLASS {
+	HANDLE hProcess;
+	ULONG PriorityClass;
+} CSR_SET_PRIORITY_CLASS, *PCSR_SET_PRIORITY_CLASS;
+
+typedef struct _CSR_IDENTIFY_ALTERTABLE_THREAD {
+	CLIENT_ID Cid;
+} CSR_IDENTIFY_ALTERTABLE_THREAD, *PCSR_IDENTIFY_ALTERTABLE_THREAD;
+
+typedef struct _CSR_API_MESSAGE {
+	PORT_MESSAGE Header;
 	union {
-		ULONG_PTR Value;
-		PVOID ValuePtr;
+		CSR_API_CONNECTINFO ConnectionInfo;
+		struct {
+			PCSR_CAPTURE_BUFFER CsrCaptureData;
+			CSR_API_NUMBER ApiNumber;
+			NTSTATUS Status;
+			ULONG Reserved;
+			union {
+				CSR_CLIENT_CONNECT CsrClientConnect;
+				CSR_SET_PRIORITY_CLASS SetPriorityClass;
+				CSR_IDENTIFY_ALTERTABLE_THREAD IdentifyAlertableThread;
+				ULONG_PTR ApiMessageData[39];
+			} Data;
+		};
 	};
-	PSIZE_T ReturnLength;
-} PS_ATTRIBUTE, *PPS_ATTRIBUTE;
-
-typedef struct _PS_ATTRIBUTE_LIST {
-	SIZE_T TotalLength;
-	PS_ATTRIBUTE Attributes[1];
-} PS_ATTRIBUTE_LIST, *PPS_ATTRIBUTE_LIST;
+} CSR_API_MESSAGE, *PCSR_API_MESSAGE;
 
 #endif // _NTDEF_H_
